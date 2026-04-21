@@ -6,11 +6,11 @@ const Politicas = () => {
     },
     {
       titulo: "2. Tiempos de Entrega",
-      contenido: "El tiempo de despacho habitual es de 48 a 72 horas hábiles una vez acreditado el pago. Los envíos se realizan a través de transporte logístico a todo el país."
+      contenido: "El tiempo de despacho habitual es de 15 a 20 días hábiles una vez acreditado el pago. Los envíos se realizan a través de transporte logístico a todo el país."
     },
     {
       titulo: "3. Cambios y Devoluciones",
-      contenido: "Los productos pueden cambiarse dentro de los 30 días de recibida la compra, siempre que se encuentren en su estado original y sin uso. Los costos de envío por cambios corren por cuenta del cliente, a menos que el producto presente una falla de fabricación."
+      contenido: "Una vez recibida la mercaderia, el cliente dispone de 72 hs. para realizar un cambio por falla y / o rotura."
     },
     {
       titulo: "4. Precios y Facturación",

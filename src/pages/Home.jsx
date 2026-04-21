@@ -45,12 +45,15 @@ const Home = () => {
     const manejarCargarMas = () => {
         const siguientePagina = pagina + 1;
         setPagina(siguientePagina);
-        cargarData(siguientePagina);
+        cargarData(siguientePagina); 
     };
 
 
     if (cargando) {
-    return <div className="p-10 text-center text-stone-500">Cargando colección...</div>;
+    return <div className="flex flex-col justify-center items-center h-64 space-y-4">
+           <div className="w-8 h-8 border-4 border-stone-200 border-t-orange-500 rounded-full animate-spin"></div>
+           <p className="text-stone-400 text-[10px] uppercase tracking-widest font-bold">Explorando Blume...</p>
+        </div>;
   }
 
   {articulosPrecios.length === 0 && !cargando && (
@@ -76,20 +79,26 @@ const Home = () => {
                   </div>
               )}
 
-              <div className="mt-12 flex justify-center">
-                  {cargando ? (
-                      <div className="text-stone-500 animate-pulse">Cargando más artículos...</div>
-                  ) : (
-                      hayMas && (
-                          <button 
-                              onClick={manejarCargarMas}
-                              className="px-8 py-3 bg-stone-800 text-white rounded-md hover:bg-stone-700 transition-colors"
-                          >
-                              Ver más productos
-                          </button>
-                      )
-                  )}
-              </div>
+              <div className="mt-12 flex justify-center pb-10"> {/* Agregué un padding abajo para dar aire */}
+                {hayMas && (
+                        <button 
+                        onClick={manejarCargarMas}
+                        disabled={cargando} 
+                        className={`px-8 py-3 bg-stone-800 text-white rounded-md transition-all ${
+                            cargando ? 'opacity-50 cursor-wait' : 'hover:bg-stone-700'
+                        }`}
+                        >
+                        {cargando ? (
+                            <span className="flex items-center gap-2">
+                            <svg className="animate-spin h-5 w-5 text-white" /* un spinner opcional */ />
+                            Cargando...
+                            </span>
+                        ) : (
+                            "Ver más productos"
+                        )}
+                        </button>
+                    )}
+                </div>
           </main>
       );
 };

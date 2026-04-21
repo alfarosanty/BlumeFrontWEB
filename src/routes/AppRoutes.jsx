@@ -1,11 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
-import { Home, DetalleArticuloPage, Nosotros, Pagos, Politicas } from '../pages';
+import { Home, DetalleArticuloPage, Nosotros, Pagos, Politicas, CategoryPage } from '../pages';
 
 export const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/articulo/:id" element={<DetalleArticuloPage />} />
+      <Route path="/categoria/:categoryName" element={<CategoryPage />} />
       {/* Podrías agregar rutas protegidas para el admin después */}
       {/* Nuevas rutas estáticas (sin dependencia de BD) */}
       <Route path="/nosotros" element={<Nosotros />} />

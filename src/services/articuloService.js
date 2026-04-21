@@ -2,7 +2,6 @@ const API_URL = "http://localhost:8000/articulos";
 
 export const getArticulosPrecios = async (pagina = 1, size = 20, codigo = "") => {
     try {
-        console.log("Entró al service")
         const url = new URL(`${API_URL}/precios`);
         url.searchParams.append("pagina", pagina.toString());
         url.searchParams.append("size", size.toString());
