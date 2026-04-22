@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { X, ShoppingBag, Trash2, Plus, Minus, Trash, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const CartDrawer = () => {
 const { cart, isCartOpen, closeCart, removeFromCart, updateQuantity, clearCart, totalPrecio } = useCart();
 const [confirmarVaciar, setConfirmarVaciar] = useState(false);
-  // --- LÓGICA DE AGRUPACIÓN (Estilo Zara) ---
-  // Agrupamos los items del carrito por "descripcion" (el nombre del modelo)
+const navigate = useNavigate();
+  // --- LÓGICA DE AGRUPACIÓN---
+  // Agrupamos los items del carrito por "codigo" (el nombre del modelo)
   const groupedCart = cart.reduce((acc, item) => {
     const modelo = item.codigo; 
     if (!acc[modelo]) {
@@ -14,6 +16,7 @@ const [confirmarVaciar, setConfirmarVaciar] = useState(false);
         nombre: modelo,
         descripcion: item.descripcion,
         url_foto: item.url_foto,
+        id_articulo_precio: item.id_articulo_precio,
         variantes: []
       };
     }
@@ -75,12 +78,28 @@ const [confirmarVaciar, setConfirmarVaciar] = useState(false);
             groupedItems.map((grupo) => (
               <div key={grupo.nombre} className="flex gap-4 border-b border-stone-50 pb-6 last:border-0">
                 {/* Foto del Modelo */}
-                <div className="w-20 h-28 bg-stone-100 rounded-lg overflow-hidden shrink-0 shadow-sm">
-                  <img src={grupo.url_foto} alt={grupo.nombre} className="w-full h-full object-cover" />
+                <div onClick={() => {
+                    closeCart();
+                    navigate(`/articulo/${grupo.id_articulo_precio}`); 
+                }}
+                    className="w-20 h-28 bg-stone-100 rounded-lg overflow-hidden shrink-0 shadow-sm cursor-pointer group"
+                >
+                <img 
+                    src={grupo.url_foto} 
+                    alt={grupo.nombre} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                />
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="font-serif text-sm font-bold uppercase mb-4 text-stone-800">{grupo.nombre}</h3>
+                <h3 onClick={() => {
+                        closeCart();
+                        navigate(`/articulo/${grupo.id_articulo_precio}`);
+                    }}
+                    className="font-serif text-sm font-bold uppercase mb-4 text-stone-800 cursor-pointer hover:text-orange-600 transition-colors"
+                >
+                    {grupo.nombre}
+                </h3>
                   
                   {/* Variantes del mismo modelo */}
                   <div className="space-y-5">
@@ -109,7 +128,6 @@ const [confirmarVaciar, setConfirmarVaciar] = useState(false);
                         </div>
 
                         <div className="flex justify-between items-center">
-                          {/* CONTROL +/- CON OPCIÓN B (Icono dinámico) */}
                           <div className="flex items-center border border-stone-200 rounded-full px-2 py-1 bg-stone-50 shadow-inner">
                             <button 
                               onClick={() => {
@@ -152,7 +170,7 @@ const [confirmarVaciar, setConfirmarVaciar] = useState(false);
               <span className="text-stone-400 text-[10px] uppercase tracking-[0.3em] font-bold">Subtotal</span>
               <span className="text-2xl font-light text-stone-900">${totalPrecio.toLocaleString('es-AR')}</span>
             </div>
-            <button className="group w-full bg-stone-900 text-white py-5 rounded-full font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-orange-600 transition-all duration-500 shadow-xl active:scale-95 flex items-center justify-center gap-2">
+            <button onClick={() => { closeCart(); navigate('/presupuesto'); }} className="group w-full bg-stone-900 text-white py-5 rounded-full font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-orange-600 transition-all duration-500 shadow-xl active:scale-95 flex items-center justify-center gap-2">
                 Continuar al presupuesto
                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </button>

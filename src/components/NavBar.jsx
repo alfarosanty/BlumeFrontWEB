@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Search, Menu } from 'lucide-react';
+import { ShoppingCart, Search, Menu, User } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
 
+  const { user, logout, isAuthenticated } = useAuth();
   const { totalItems, openCart } = useCart();
   const [animate, setAnimate] = useState(false);
 
@@ -62,25 +64,57 @@ const Navbar = () => {
           </div>
 
           {/* Iconos */}
-          <div className="flex items-center space-x-4">
-            <button className="p-2 text-stone-500 hover:text-stone-900">
-              <Search size={20} />
-            </button>
-            <button onClick={openCart} className="p-2 text-stone-500 hover:text-stone-900 relative">
-              <ShoppingCart size={20} />
-              
-              {totalItems > 0 && (
-                <span className={`absolute top-1 right-1 bg-orange-600 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center transition-transform duration-300 ${
-                  animate ? 'scale-125 animate-bounce' : 'scale-100'
-                }`}>
-                  {totalItems}
+          <div className="flex items-center space-x-2"> {/* Bajé un toque el space-x */}
+  
+          <button className="p-2 text-stone-500 hover:text-stone-900 transition-colors">
+            <Search size={18} />
+          </button>
+      
+          {/* BOTÓN DE USUARIO DINÁMICO */}
+          {isAuthenticated ? (
+            <div className="flex items-center gap-4">
+              {/* Si está logueado, mostramos su nombre y opción de salir */}
+              <div className="hidden lg:flex flex-col items-end">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-900">
+                  Hola, {user.username}
                 </span>
-              )}
-            </button>
-            <button className="md:hidden p-2 text-stone-500">
-              <Menu size={20} />
-            </button>
-          </div>
+                <button 
+                  onClick={logout}
+                  className="text-[9px] uppercase tracking-tighter text-orange-600 hover:underline"
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
+              <div className="p-2 bg-stone-100 rounded-full text-stone-600">
+                <User size={18} />
+              </div>
+            </div>
+          ) : (
+            /* Si no está logueado, mostramos el link de siempre */
+            <Link 
+              to="/login" 
+              className="p-2 text-stone-500 hover:text-stone-900 flex items-center gap-2 group transition-colors"
+            >
+              <User size={18} />
+              <span className="hidden lg:inline text-[10px] font-bold uppercase tracking-widest text-stone-400 group-hover:text-stone-900">
+                Ingresar
+              </span>
+            </Link>
+          )}
+
+          {/* CARRITO */}
+          <button onClick={openCart} className="p-2 text-stone-500 hover:text-stone-900 relative transition-colors">
+            <ShoppingCart size={18} />
+            {totalItems > 0 && (
+              <span className={`absolute top-1 right-1 bg-orange-600 text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center transition-transform ${
+                animate ? 'scale-125' : 'scale-100'
+              }`}>
+                {totalItems}
+              </span>
+            )}
+          </button>
+
+        </div>
           
         </div>
       </div>

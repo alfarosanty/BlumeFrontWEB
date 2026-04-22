@@ -23,6 +23,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = (itemNuevo, cantidadElegida = 1) => {
     setCart(prevCart => {
       const exists = prevCart.find(item => item.id_articulo === itemNuevo.id_articulo);
+      console.log(exists)
       
       if (exists) {
         return prevCart.map(item => 
@@ -35,7 +36,8 @@ export const CartProvider = ({ children }) => {
             : item
         );
       }
-
+      console.log("carrito",prevCart)
+      console.log("articulo a agregar", itemNuevo)
       return [...prevCart, itemNuevo];
     });
   };

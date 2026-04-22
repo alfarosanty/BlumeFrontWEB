@@ -10,12 +10,20 @@ const DetalleArticulo = ({ variantes }) => {
   const [cantidad, setCantidad] = useState(1);
   const [agregado, setAgregado] = useState(false);
 
+  useEffect(() => {
+    if (variantes && variantes.length > 0) {
+      setSeleccionado(variantes[0]);
+      setCantidad(1);
+      window.scrollTo(0, 0);
+    }
+  }, [variantes]);
+
   const infoGeneral = seleccionado.articulo_precio;
 
   const handleAgregarAlCarrito = () => {
 
     const productoParaCarrito = {
-      id_articulo: seleccionado.id, 
+      id_articulo: seleccionado.id,
       codigo: seleccionado.codigo,
       
       descripcion: infoGeneral.descripcion,
@@ -24,6 +32,7 @@ const DetalleArticulo = ({ variantes }) => {
       medida_nombre: seleccionado.medida.descripcion,
       url_foto: infoGeneral.url_foto || 'https://placehold.co/200',
       
+      id_articulo_precio: infoGeneral.id,
       precio_unitario: parseFloat(infoGeneral.precio1),
       cantidad: cantidad, 
       subtotal: parseFloat(infoGeneral.precio1) * cantidad,
