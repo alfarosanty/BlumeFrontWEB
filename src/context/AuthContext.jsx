@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     // Aquí luego irá el fetch a FastAPI
+    console.log(userData)
     setUser(userData);
   };
 
