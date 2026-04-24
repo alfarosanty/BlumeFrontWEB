@@ -6,9 +6,9 @@ import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
           {/* Este div controla que el Footer siempre sea el final */}
           <div className="flex flex-col min-h-screen text-stone-800 bg-white">
             
@@ -22,9 +22,9 @@ function App() {
             <Footer />
             
           </div>
-        </BrowserRouter>
-      </CartProvider>
-    </AuthProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
 
   );
 }

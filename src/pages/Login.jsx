@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Mail, User as UserIcon, ArrowRight, Building2, Hash, Phone, AlertCircle, Eye, EyeOff, Lock } from 'lucide-react';
 import { usuarioService } from '../services/usuarioService';
+import { authService } from '../services/AuthService';
 
 const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -47,15 +48,15 @@ const Login = () => {
             // REGISTRO REAL
             const respuestaBack = await usuarioService.registrar(formData);
             login(respuestaBack); 
-            navigate('/presupuesto');
+            navigate('/');
             } else {
             // LOGIN REAL
             // Mandamos solo email y password que el usuario escribió
-            const usuarioLogueado = await usuarioService.login(formData.email, formData.password);
+            const usuarioLogueado = await authService.login(formData.email, formData.password);
             
             // Si llegamos acá, es porque el back devolvió 200 OK
             login(usuarioLogueado); 
-            navigate('/presupuesto');
+            navigate('/');
             }
         } catch (err) {
             // Aquí caerán errores como "Usuario no encontrado" o "Contraseña incorrecta"

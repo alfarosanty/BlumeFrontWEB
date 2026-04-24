@@ -1,4 +1,5 @@
 import React from 'react';
+import UserMenu from './UserMenu';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Search, Menu, User } from 'lucide-react';
@@ -7,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
 
-  const { user, logout, isAuthenticated } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
   const { totalItems, openCart } = useCart();
   const [animate, setAnimate] = useState(false);
 
@@ -70,37 +71,20 @@ const Navbar = () => {
             <Search size={18} />
           </button>
       
-          {/* BOTÓN DE USUARIO DINÁMICO */}
-          {isAuthenticated ? (
-            <div className="flex items-center gap-4">
-              {/* Si está logueado, mostramos su nombre y opción de salir */}
-              <div className="hidden lg:flex flex-col items-end">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-900">
-                  Hola, {user.username}
-                </span>
-                <button 
-                  onClick={logout}
-                  className="text-[9px] uppercase tracking-tighter text-orange-600 hover:underline"
-                >
-                  Cerrar Sesión
-                </button>
-              </div>
-              <div className="p-2 bg-stone-100 rounded-full text-stone-600">
+          {/* BOTÓN DE USUARIO DINÁMICO REFACTORIZADO */}
+            {isAuthenticated ? (
+               <UserMenu /> 
+            ) : (
+              <Link 
+                to="/login" 
+                className="p-2 text-stone-500 hover:text-stone-900 flex items-center gap-2 group transition-colors"
+              >
                 <User size={18} />
-              </div>
-            </div>
-          ) : (
-            /* Si no está logueado, mostramos el link de siempre */
-            <Link 
-              to="/login" 
-              className="p-2 text-stone-500 hover:text-stone-900 flex items-center gap-2 group transition-colors"
-            >
-              <User size={18} />
-              <span className="hidden lg:inline text-[10px] font-bold uppercase tracking-widest text-stone-400 group-hover:text-stone-900">
-                Ingresar
-              </span>
-            </Link>
-          )}
+                <span className="hidden lg:inline text-[10px] font-bold uppercase tracking-widest text-stone-400 group-hover:text-stone-900">
+                  Ingresar
+                </span>
+              </Link>
+            )}
 
           {/* CARRITO */}
           <button onClick={openCart} className="p-2 text-stone-500 hover:text-stone-900 relative transition-colors">

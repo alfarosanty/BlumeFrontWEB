@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Send, Trash2, ChevronRight, Plus, Minus, ArrowRight } from 'lucide-react';
+import { presupuestoService } from '../services/presupuestoService';
 
 const Presupuesto = () => {
   const { cart, totalPrecio, removeFromCart, clearCart, updateQuantity } = useCart();
+  const [isSending, setIsSending] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Agrupamos el carrito por modelo
   const groupedCart = cart.reduce((acc, item) => {
@@ -38,11 +42,34 @@ const Presupuesto = () => {
   }
 
   const handleEnviarPresupuesto = async () => {
-    // Acá es donde mañana conectaremos con FastAPI
-    console.log("Enviando a Python...", cart);
-    alert("Presupuesto enviado con éxito (Simulado)");
-    // clearCart();
-    // navigate('/gracias');
+    if (cart.length === 0 || isSending) return;
+    setIsSending(true);
+    try {
+
+      const payload = {
+      id_cliente: user.id_cliente,
+      estado: "CREADO",
+      articulos: cart.map(item => ({
+        id_articulo: item.id_articulo,
+        cantidad: item.cantidad,
+        precio_unitario: item.precio_unitario,
+        codigo: item.codigo,
+        descripcion: item.descripcion,
+      }))
+    };
+
+    console.log(payload)
+      const resultado = await presupuestoService.crear(payload);
+      console.log("Presupuesto creado:", resultado);
+      
+      clearCart();
+      navigate('/gracias', { state: { id: resultado.id } });
+
+    } catch (err) {
+      navigate('/login');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -225,12 +252,29 @@ const Presupuesto = () => {
               </div>
 
               {/* Botón de Confirmación */}
-              <button 
+              <button
+                disabled={isSending || cart.length === 0}
                 onClick={handleEnviarPresupuesto}
-                className="w-full bg-stone-900 hover:bg-orange-600 text-white py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] transition-all duration-500 flex items-center justify-center gap-3 group"
+                className={`w-full py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] transition-all duration-500 flex items-center justify-center gap-3 group
+                  ${isSending 
+                    ? 'bg-stone-400 cursor-not-allowed' 
+                    : 'bg-stone-900 hover:bg-orange-600 text-white active:scale-[0.98]'
+                  }`}
               >
-                Confirmar Presupuesto
-                <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                {isSending ? (
+                  <>
+                    Procesando...
+                    <div className="w-3 h-3 border-2 border-stone-200 border-t-white rounded-full animate-spin"></div>
+                  </>
+                ) : (
+                  <>
+                    Confirmar Presupuesto
+                    <Send 
+                      size={14} 
+                      className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" 
+                    />
+                  </>
+                )}
               </button>
 
               {/* Garantía de confianza sutil */}
