@@ -5,7 +5,7 @@ export const presupuestoService = {
     const token = localStorage.getItem("blume_token");
 
     try {
-      const response = await fetch(`${API_URL}/`, {
+      const response = await fetch(`${API_URL}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,17 +26,37 @@ export const presupuestoService = {
     }
   },
 
-    getMisPresupuestos: async () => {
+  getMisPresupuestos: async () => {
+  const token = localStorage.getItem("blume_token");
+  const response = await fetch(`${API_URL}`, { 
+      headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+      }
+  });
+    
+  if (!response.ok) throw new Error("Error al traer presupuestos");
+  const data = await response.json();
+  return data.items;
+  },
+
+  getById: async (id) => {
     const token = localStorage.getItem("blume_token");
-    const response = await fetch("http://localhost:8000/presupuestos", { 
-        headers: {
+    const response = await fetch(`${API_URL}/${id}`, {
+      headers: {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"
-        }
+      }
     });
-    
-    if (!response.ok) throw new Error("Error al traer presupuestos");
-    const data = await response.json();
-    return data.items; // Como usas PagedResponse, la data real está en .items
+
+    if (!response.ok) {
+      if (response.status === 404) throw new Error("Presupuesto no encontrado");
+      throw new Error("Error al obtener el detalle del presupuesto");
     }
+
+    const data = await response.json();
+    console.log(data)
+    return data; 
+  }
+
 };

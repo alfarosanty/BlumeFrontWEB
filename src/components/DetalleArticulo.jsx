@@ -1,14 +1,18 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getDetalleArticulo } from '../services/ArticuloService';
 import { useCart } from '../context/CartContext';
 import { Check, Plus, Minus } from 'lucide-react';
+import { useAuth } from '../context/AuthContext'
 
 const DetalleArticulo = ({ variantes }) => {
   const { addToCart } = useCart();
   const [seleccionado, setSeleccionado] = useState(variantes[0]);
   const [cantidad, setCantidad] = useState(1);
   const [agregado, setAgregado] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (variantes && variantes.length > 0) {
@@ -21,6 +25,11 @@ const DetalleArticulo = ({ variantes }) => {
   const infoGeneral = seleccionado.articulo_precio;
 
   const handleAgregarAlCarrito = () => {
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
 
     const productoParaCarrito = {
       id_articulo: seleccionado.id,
@@ -98,7 +107,7 @@ const DetalleArticulo = ({ variantes }) => {
                   key={v.id}
                   onClick={() => setSeleccionado(v)}
                   title={v.color.descripcion}
-                  className={`group relative w-10 h-10 rounded-full border-2 transition-all duration-200 ${
+                  className={`group relative w-10 h-10 rounded-full border-2 transition-all duration-200 cursor-pointer ${
                     seleccionado.id === v.id ? "border-stone-800 scale-110 shadow-md" : "border-transparent hover:border-stone-300"
                   }`}
                 >
@@ -123,7 +132,7 @@ const DetalleArticulo = ({ variantes }) => {
             <div className="flex items-center border border-stone-300 rounded-full px-4 py-2">
               <button 
                 onClick={() => setCantidad(Math.max(1, cantidad - 1))}
-                className="w-8 h-8 text-xl hover:text-orange-600 transition-colors"
+                className="w-8 h-8 text-xl hover:text-orange-600 transition-colors cursor-pointer"
               >
                 −
               </button>
@@ -135,7 +144,7 @@ const DetalleArticulo = ({ variantes }) => {
               />
               <button 
                 onClick={() => setCantidad(cantidad + 1)}
-                className="w-8 h-8 text-xl hover:text-orange-600 transition-colors"
+                className="w-8 h-8 text-xl hover:text-orange-600 transition-colors cursor-pointer"
               >
                 +
               </button>
@@ -143,8 +152,8 @@ const DetalleArticulo = ({ variantes }) => {
 
             <button
                 onClick={handleAgregarAlCarrito}
-                disabled={agregado} // Evitamos múltiples clics mientras dice "Agregado"
-                className={`flex-1 rounded-full py-4 font-bold uppercase tracking-widest text-sm transition-all duration-500 shadow-lg active:scale-95 ${
+                disabled={agregado}
+                className={`flex-1 rounded-full py-4 font-bold uppercase tracking-widest text-sm transition-all duration-500 shadow-lg active:scale-95 cursor-pointer ${
                   agregado 
                     ? 'bg-orange-600 text-white scale-105' 
                     : 'bg-stone-900 text-white hover:bg-stone-800'

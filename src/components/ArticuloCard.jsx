@@ -38,7 +38,7 @@ const ArticuloCard = ({ articulo: ArticuloPrecio }) => {
           </span>
           <button 
             onClick={irAlDetalle}
-            className="bg-stone-800 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-orange-600 transition-colors">
+            className="bg-stone-800 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-orange-600 transition-colors cursor-pointer">
             Ver detalle
           </button>
         </div>

@@ -1,5 +1,5 @@
 import { useAuth } from '../context/AuthContext';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Home, DetalleArticuloPage, Nosotros, Pagos, Politicas, CategoryPage, Presupuesto, Login, Gracias, MisPresupuestos } from '../pages';
 
 export const AppRoutes = () => {
@@ -12,6 +12,7 @@ export const AppRoutes = () => {
       <Route path="/articulo/:id" element={<DetalleArticuloPage />} />
       <Route path="/categoria/:categoryName" element={<CategoryPage />} />
       <Route path="/presupuesto" element={<Presupuesto />} />
+      <Route path="/presupuesto/:id" element={isAuthenticated ? <Presupuesto /> : <Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
       <Route path="/mis-presupuestos" element={isAuthenticated ? <MisPresupuestos /> : <Navigate to="/login" />} />
       {/* Podrías agregar rutas protegidas para el admin después */}

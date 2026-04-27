@@ -114,9 +114,9 @@ const Login = () => {
 
                 {/* Botón para alternar visibilidad */}
                 <button
-                    type="button" // Importante: que no sea submit
+                    type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
                 >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -163,7 +163,7 @@ const Login = () => {
 
             <button 
               disabled={loading}
-              className="w-full bg-stone-900 hover:bg-orange-600 disabled:bg-stone-400 text-white py-4 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] transition-all duration-500 flex items-center justify-center gap-3 shadow-lg mt-4"
+              className="w-full bg-stone-900 hover:bg-orange-600 disabled:bg-stone-400 text-white py-4 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] transition-all duration-500 flex items-center justify-center gap-3 shadow-lg mt-4 cursor-pointer"
             >
               {loading ? 'Validando...' : (isRegister ? 'Registrarme' : 'Entrar')}
               {!loading && <ArrowRight size={14} />}
@@ -173,7 +173,7 @@ const Login = () => {
           <div className="mt-8 text-center">
             <button 
               onClick={() => { setIsRegister(!isRegister); setError(null); }}
-              className="text-[10px] uppercase tracking-widest text-stone-400 hover:text-stone-900 font-bold transition-colors"
+              className="text-[10px] uppercase tracking-widest text-stone-400 hover:text-stone-900 font-bold transition-colors cursor-pointer"
             >
               {isRegister ? '¿Ya sos cliente? Iniciá sesión' : '¿No tenés cuenta? Registrate como mayorista'}
             </button>

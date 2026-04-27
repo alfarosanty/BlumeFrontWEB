@@ -1,10 +1,13 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
+
+  const { isAuthenticated } = useAuth();
 
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem('blume_cart');
@@ -17,8 +20,15 @@ export const CartProvider = ({ children }) => {
   const closeCart = () => setIsCartOpen(false);
 
   useEffect(() => {
-    localStorage.setItem('blume_cart', JSON.stringify(cart));
-  }, [cart]);
+      localStorage.setItem('blume_cart', JSON.stringify(cart));
+    }, [cart]);
+
+    useEffect(() => {
+      if (!isAuthenticated) {
+        clearCart();
+        localStorage.removeItem('blume_cart');
+      }
+    }, [isAuthenticated]);
 
   const addToCart = (itemNuevo, cantidadElegida = 1) => {
     setCart(prevCart => {
@@ -36,8 +46,6 @@ export const CartProvider = ({ children }) => {
             : item
         );
       }
-      console.log("carrito",prevCart)
-      console.log("articulo a agregar", itemNuevo)
       return [...prevCart, itemNuevo];
     });
   };
