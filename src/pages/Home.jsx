@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import ArticuloCard from "../components/ArticuloCard";
-import { getArticulosPrecios } from "../services/ArticuloService";
+import { ArticuloService } from "../services/ArticuloService";
 
 const Home = () => {
 
@@ -16,7 +16,7 @@ const Home = () => {
 
         setCargando(true);
         try {
-            const nuevosArticulos = await getArticulosPrecios(nroPagina, SIZE);
+            const nuevosArticulos = await ArticuloService.getArticulosPrecios(nroPagina, SIZE);
             
             if (nuevosArticulos.length < SIZE) {
                 setHayMas(false);
@@ -51,7 +51,7 @@ const Home = () => {
 
     if (cargando) {
     return <div className="flex flex-col justify-center items-center h-64 space-y-4">
-           <div className="w-8 h-8 border-4 border-stone-200 border-t-orange-500 rounded-full animate-spin"></div>
+           <div className="w-8 h-8 border-4 border-stone-200 border-t-[#be9e70] rounded-full animate-spin"></div>
            <p className="text-stone-400 text-[10px] uppercase tracking-widest font-bold">Explorando Blume...</p>
         </div>;
   }

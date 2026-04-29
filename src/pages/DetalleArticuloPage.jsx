@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getDetalleArticulo } from "../services/articuloService";
+import { ArticuloService } from "../services/articuloService";
 import DetalleArticulo from "../components/DetalleArticulo"; // Importás el componente visual
 
 const DetalleArticuloPage = () => {
@@ -11,7 +11,7 @@ const DetalleArticuloPage = () => {
         const controller = new AbortController();
 
         // Pasamos el id (de useParams) y el signal
-        getDetalleArticulo(1, 50, id, controller.signal).then(data => {
+        ArticuloService.getDetalleArticulo(1, 50, id, controller.signal).then(data => {
             if (data) { // Solo seteamos si no fue una cancelación (data !== null)
                 setVariantes(data);
             }

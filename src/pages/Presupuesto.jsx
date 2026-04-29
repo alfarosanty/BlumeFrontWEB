@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Send, Trash2, ChevronRight, Plus, Minus, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Trash2, ChevronRight, Plus, Minus } from 'lucide-react';
 import { presupuestoService } from '../services/presupuestoService';
 
 const Presupuesto = () => {
@@ -15,12 +15,14 @@ const Presupuesto = () => {
   const [loading, setLoading] = useState(Boolean(id));
   const [isSending, setIsSending] = useState(false);
   const isReadOnly = Boolean(id);
+  const [numero_presupuesto_cliente, setNumero_presupuesto_cliente] = useState(null);
 
   useEffect(() => {
     if (isReadOnly) {
       const cargarPresupuestoGuardado = async () => {
         try {
           const data = await presupuestoService.getById(id);
+          setNumero_presupuesto_cliente(data.numero_presupuesto_cliente);
           const articulosNormalizados = data.articulos.map(item => {
             const artBase = item.articulo;
             return {
@@ -37,16 +39,12 @@ const Presupuesto = () => {
               id_articulo_precio: artBase?.id_articulo_precio || artBase?.id
             };
           });
-          console.log("Articulos normalizados: ", articulosNormalizados)
-
           setDatosVista({
             articulos: articulosNormalizados,
             total: data.total,
             id_presupuesto: data.id
           });
-          console.log(data)
         } catch (err) {
-          console.error("Error cargando presupuesto:", err);
           navigate('/mis-presupuestos');
         } finally {
           setLoading(false);
@@ -54,15 +52,12 @@ const Presupuesto = () => {
       };
       cargarPresupuestoGuardado();
     } else {
-      setDatosVista({
-        articulos: cart,
-        total: totalPrecio
-      });
+      setDatosVista({ articulos: cart, total: totalPrecio });
       setLoading(false);
     }
   }, [id, cart, totalPrecio, isReadOnly, navigate]);
 
-  const groupedCart = datosVista.articulos.reduce((acc, item) => {
+  const groupedCart = (isReadOnly ? datosVista.articulos : cart).reduce((acc, item) => {
     const key = item.codigo || item.id_articulo;
     if (!acc[key]) {
       acc[key] = {
@@ -70,33 +65,14 @@ const Presupuesto = () => {
         descripcion: item.descripcion,
         foto: item.url_foto || item.foto,
         variantes: [],
-        totalModelo: 0
+        totalModelo: 0,
+        id_articulo_precio: item.id_articulo_precio
       };
     }
     acc[key].variantes.push(item);
     acc[key].totalModelo += (item.cantidad * item.precio_unitario);
     return acc;
   }, {});
-
-  if (loading) return (
-        <div className="h-screen w-full bg-[#faf9f6] flex flex-col justify-center items-center space-y-4">
-          <div className="w-8 h-8 border-4 border-stone-200 border-t-orange-500 rounded-full animate-spin"></div>
-          <p className="text-stone-400 text-[10px] uppercase tracking-[0.2em] font-bold">
-            Explorando Blume...
-          </p>
-        </div>
-  );
-
-  if (!isReadOnly && cart.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6">
-        <h2 className="text-xl font-serif text-stone-800 mb-6 italic">Tu presupuesto está vacío</h2>
-        <Link to="/" className="text-stone-900 border-b border-stone-900 pb-1 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2">
-          <ArrowLeft size={14} /> Volver al catálogo
-        </Link>
-      </div>
-    );
-  }
 
   const handleEnviarPresupuesto = async () => {
     if (isReadOnly || isSending || cart.length === 0) return;
@@ -112,222 +88,188 @@ const Presupuesto = () => {
           precio_unitario: item.precio_unitario
         }))
       };
-      console.log(payload)
       const resultado = await presupuestoService.crear(payload);
       clearCart();
       navigate('/gracias', { state: { id: resultado.id } });
     } catch (err) {
-      console.error(err);
-      navigate('/login')
+      navigate('/login');
     } finally {
       setIsSending(false);
     }
   };
 
-  const itemsAMostrar = isReadOnly ? datosVista.articulos : cart;
+  if (loading) return (
+    <div className="h-screen w-full bg-white flex flex-col justify-center items-center">
+      <div className="w-10 h-px bg-stone-300 animate-pulse mb-4"></div>
+      <p className="text-stone-400 text-[9px] uppercase tracking-[0.3em]">Cargando</p>
+    </div>
+  );
 
   return (
-  <div className="min-h-screen bg-[#faf9f6] pt-24 pb-12 px-4 md:px-8">
-    <div className="max-w-7xl mx-auto">
-      
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-        <div>
-          <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-4">
-            <Link to="/" className="hover:text-stone-800">Catálogo</Link>
-            <ChevronRight size={10} />
-            <span className="text-stone-800 font-bold">{isReadOnly ? 'Archivo' : 'Cesta'}</span>
-          </nav>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-stone-900 leading-tight italic">
-            {isReadOnly ? `PRESUPUESTO #${id.padStart(5, '0')}` : 'TU SELECCIÓN'}
-          </h1>
-        </div>
-      </div>
-
-      {/* Grid de 12 columnas para máxima precisión */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+    <div className="min-h-screen bg-white pt-24 md:pt-32 pb-20 px-4 md:px-12 animate-in fade-in duration-700">
+      <div className="max-w-400 mx-auto">
         
-        {/* Columna Izquierda: Tabla (Ocupa 8 de 12) */}
-        <div className="lg:col-span-8 space-y-8">
-          <div className="border-t border-stone-200">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-stone-100">
-                  <th className="py-6 text-[10px] uppercase tracking-widest text-stone-400 font-bold">Producto</th>
-                  <th className="py-6 text-[10px] uppercase tracking-widest text-stone-400 font-bold text-right">Detalle de Variantes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100">
-                {Object.values(groupedCart).map((grupo) => (
-                  <tr key={grupo.nombre} className="group">
-                    <td className="py-8 align-top w-2/5">
-                      <div className="flex gap-6 items-start">
-                        <Link 
-                          to={`/articulo/${grupo.id_articulo_precio}`}
-                          className="flex gap-6 items-start group/link cursor-pointer"
-                        >
-                          <div className="overflow-hidden bg-stone-50 w-36 h-50 shrink-0 shadow-sm transition-shadow hover:shadow-md">
-                            <img 
-                              src={grupo.foto} 
-                              className="w-full h-full object-cover grayscale-[0.2] group-hover/link:grayscale-0 group-hover/link:scale-105 transition-all duration-700" 
-                              alt={grupo.nombre} 
-                            />
-                          </div>
+        {/* Header */}
+        <header className="mb-12 md:mb-16">
+          <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-6">
+            <Link to="/" className="hover:text-black transition-colors">Catálogo</Link>
+            <ChevronRight size={8} />
+            <span className="text-black">{isReadOnly ? 'Detalle' : 'Tu Cesta'}</span>
+          </nav>
+          <h1 className="text-4xl md:text-5xl font-light tracking-tighter text-stone-900 uppercase italic">
+            {isReadOnly ? `Pedido N° ${String(numero_presupuesto_cliente).padStart(5, '0')}` : 'Selección de Artículos'}
+          </h1>
+        </header>
 
-                          <div className="flex flex-col gap-1 mt-1">
-                            <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider leading-tight group-hover/link:text-stone-600 transition-colors">
-                              {grupo.nombre}
-                            </h3>
-                            
-                            <span className="text-[9px] uppercase tracking-widest text-stone-300 mt-4 opacity-0 group-hover/link:opacity-100 transition-opacity">
-                              Ver producto +
+        <div className="flex flex-col lg:flex-row gap-16 md:gap-20">
+          
+          {/* Listado de Productos */}
+          <div className="grow">
+            <div className="border-t border-stone-200">
+              {Object.values(groupedCart).map((grupo) => (
+                <div key={grupo.nombre} className="flex flex-col md:flex-row py-10 border-b border-stone-100 group">
+                  
+                  {/* Imagen */}
+                  <div className="w-full md:w-56 lg:w-64 mb-6 md:mb-0">
+                    <Link to={`/articulo/${grupo.id_articulo_precio}`}>
+                      <div className="aspect-3/4 overflow-hidden bg-stone-100">
+                        <img 
+                          src={grupo.foto} 
+                          className="w-full h-full object-cover grayscale-10 hover:grayscale-0 transition-all duration-1000 ease-out" 
+                          alt={grupo.nombre} 
+                        />
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Info */}
+                  <div className="md:pl-12 grow flex flex-col">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="text-sm font-bold tracking-widest uppercase text-stone-900">{grupo.nombre}</h3>
+                      <p className="text-sm font-medium text-stone-900">${grupo.totalModelo.toLocaleString('es-AR')}</p>
+                    </div>
+                    <p className="text-[11px] text-stone-400 uppercase tracking-wider mb-10">{grupo.descripcion}</p>
+                    
+                    <div className="space-y-8">
+                      {grupo.variantes.map((v) => (
+                        <div key={v.id_articulo} className="flex items-center justify-between group/item">
+                          <div className="flex items-center gap-4">
+                            <div 
+                              className="w-1 h-4 transition-transform duration-300" 
+                              style={{ backgroundColor: v.color_hexa || '#d6d3d1' }} 
+                            />
+                            <span className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-stone-600">
+                              {v.color_nombre} <span className="text-stone-200 mx-2">/</span> {v.medida_nombre}
                             </span>
                           </div>
-                        </Link>
-                      </div>
-                      <p className="text-[10px] text-stone-400 font-mono tracking-tighter mt-4">
-                        REF: {grupo.descripcion}
-                        </p>
-                    </td>
 
-                    {/* Variantes compactas */}
-                    <td className="py-8 pl-8 align-top">
-                      <div className="space-y-2">
-                        {grupo.variantes.map((v) => (
-                          <div key={v.id_articulo} className="flex items-center justify-between py-2 border-b border-stone-50 last:border-0 hover:bg-[#fafafa]/50 px-2 -mx-2 transition-colors">
-                            <div className="flex items-center gap-3">
-                              {/* BARRITA lateral de color CORREGIDA */}
-                              <div className="w-1 h-3.5" style={{ backgroundColor: v.color_hexa || '#d6d3d1' }} />
-                              
-                              <span className="text-[10px] text-stone-600 uppercase tracking-tight">
-                                {v.color_nombre} <span className="text-stone-200 mx-1">/</span> {v.medida_nombre}
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-center gap-6">
-                              {/* Selectores cantidad: SOLO si no es lectura */}
-                              {!isReadOnly ? (
-                                <div className="flex items-center gap-3 border border-stone-100 bg-white px-2 py-0.5 shadow-inner">
-                                  <button 
-                                    disabled={v.cantidad <= 1} 
-                                    onClick={() => v.cantidad > 1 && updateQuantity(v.id_articulo, v.cantidad - 1)} 
-                                    className={`transition-colors ${ v.cantidad <= 1 ? 'text-stone-200 cursor-not-allowed' : 'text-stone-400 hover:text-black cursor-pointer'}`}
-                                  > 
-                                    <Minus size={11} /> 
-                                  </button>
-                                  <span className="text-[11px] font-bold w-4 text-center font-mono text-stone-900">{v.cantidad}</span>
-                                  <button 
-                                    onClick={() => updateQuantity(v.id_articulo, v.cantidad + 1)} 
-                                    className="text-stone-400 hover:text-black cursor-pointer"
-                                  >
-                                    <Plus size={11} />
-                                  </button>
-                                </div>
-                              ) : (
-                                /* En modo lectura solo mostramos la cantidad con un estilo lindo */
-                                <div className="text-[11px] font-mono text-stone-500 uppercase tracking-widest">
-                                  Cant: <span className="text-stone-950 font-bold">{v.cantidad}</span>
-                                </div>
-                              )}
-
-                              {/* Precio (se queda igual) */}
-                              <span className="text-[11px] font-mono font-bold w-20 text-right text-stone-950">
-                                ${v.subtotal.toLocaleString('es-AR')}
-                              </span>
-
-                              {/* TACHO DE BASURA: SOLO si no es lectura */}
-                              {!isReadOnly && (
+                          <div className="flex items-center gap-8 md:gap-14">
+                            {!isReadOnly ? (
+                              <div className="flex items-center gap-5">
                                 <button 
-                                  onClick={() => removeFromCart(v.id_articulo)} 
-                                  className="text-stone-900 hover:text-red-600 transition-colors cursor-pointer p-1"
+                                  onClick={() => v.cantidad > 1 && updateQuantity(v.id_articulo, v.cantidad - 1)} 
+                                  disabled={v.cantidad <= 1}
+                                  className={`transition-colors ${v.cantidad <= 1 ? 'text-stone-200 cursor-not-allowed' : 'text-stone-400 hover:text-black cursor-pointer'}`}
                                 >
-                                  <Trash2 size={15} strokeWidth={1.5} />
+                                  <Minus size={14} strokeWidth={1} />
                                 </button>
-                              )}
-                            </div>
+                                <span className="text-[11px] font-bold w-4 text-center">{v.cantidad}</span>
+                                <button 
+                                  onClick={() => updateQuantity(v.id_articulo, v.cantidad + 1)} 
+                                  className="text-stone-400 hover:text-black cursor-pointer transition-colors"
+                                >
+                                  <Plus size={14} strokeWidth={1}/>
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">
+                                Unidades: {v.cantidad}
+                              </span>
+                            )}
+                            
+                            <span className="text-[11px] font-semibold w-24 text-right text-stone-900 font-mono">
+                              ${v.subtotal.toLocaleString('es-AR')}
+                            </span>
+
+                            {!isReadOnly && (
+                              <button 
+                                onClick={() => removeFromCart(v.id_articulo)} 
+                                className="text-stone-400 hover:text-red-900 transition-all duration-300 transform hover:scale-110"
+                                title="Eliminar variante"
+                              >
+                                <Trash2 size={15} strokeWidth={1.2} />
+                              </button>
+                            )}
                           </div>
-                        ))}
-                        
-                        {/* Subtotal Modelo */}
-                        <div className="flex justify-end pt-5">
-                          <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-400 italic">
-                            Subtotal {grupo.nombre}: <span className="ml-4 text-stone-900 not-italic">${grupo.totalModelo.toLocaleString('es-AR')}</span>
-                          </p>
                         </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => navigate('/')} 
+              className="mt-12 group flex items-center gap-3 text-stone-400 hover:text-black text-[10px] uppercase tracking-[0.3em] transition-all"
+            >
+              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
+              Seguir comprando
+            </button>
           </div>
 
-          {/* Botón Volver */}
-          <button 
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-stone-400 hover:text-stone-800 text-[10px] font-bold uppercase tracking-[0.2em] transition-colors cursor-pointer pt-4"
-          >
-            <ArrowLeft size={14} /> Continuar comprando
-          </button>
-        </div>
-
-        {/* Columna Derecha: Resumen (Ocupa 4 de 12) */}
-        <div className="lg:col-span-4">
-          <div className="bg-[#fafafa] p-10 sticky top-32 border border-stone-100">
-            <h3 className="text-[11px] font-bold text-stone-900 uppercase tracking-[0.3em] mb-10 italic">
-              {isReadOnly ? "Datos del Archivo" : "Resumen de Selección"}
-            </h3>
-            
-            <div className="space-y-6 border-b border-stone-200 pb-8 mb-8">
-              <div className="flex justify-between text-[10px] uppercase tracking-widest">
-                <span className="text-stone-400">Modelos</span>
-                <span className="text-stone-900 font-bold">{Object.keys(groupedCart).length}</span>
+          {/* Resumen Sticky */}
+          <div className="lg:w-100">
+            <div className="lg:sticky lg:top-32 bg-[#fcfcfc] border border-stone-100 p-10">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] mb-12 text-stone-400">Detalle de Importes</h3>
+              
+              <div className="space-y-6 mb-12">
+                <div className="flex justify-between text-[10px] uppercase tracking-[0.2em]">
+                  <span className="text-stone-500">Valor Neto</span>
+                  <span className="font-medium text-stone-900">${datosVista.total.toLocaleString('es-AR')}</span>
+                </div>
+                <div className="flex justify-between text-[10px] uppercase tracking-[0.2em]">
+                  <span className="text-stone-500">Logística</span>
+                  <span className="text-stone-400 italic">A convenir</span>
+                </div>
+                <div className="pt-6 border-t border-stone-200 flex justify-between items-baseline">
+                  <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-stone-900">Total</span>
+                  <span className="text-3xl font-light text-stone-900 tracking-tighter">${datosVista.total.toLocaleString('es-AR')}</span>
+                </div>
               </div>
-              <div className="flex justify-between text-[10px] uppercase tracking-widest">
-                <span className="text-stone-400">Artículos</span>
-                <span className="text-stone-900 font-bold">{itemsAMostrar.reduce((sum, item) => sum + item.cantidad, 0)}</span>
-              </div>
-              <div className="flex justify-between text-[10px] uppercase tracking-widest text-stone-400 italic">
-                <span>Envío</span>
-                <span>A convenir</span>
-              </div>
-            </div>
 
-            <div className="flex justify-between items-baseline mb-12">
-              <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-900">Total</span>
-              <span className="text-4xl font-light italic text-stone-900">${datosVista.total.toLocaleString('es-AR')}</span>
-            </div>
-
-            {!isReadOnly ? (
-              <>
+              {!isReadOnly ? (
                 <button
                   disabled={isSending || cart.length === 0}
                   onClick={handleEnviarPresupuesto}
-                  className={`w-full py-5 text-[11px] uppercase tracking-[0.3em] font-bold transition-all duration-500 cursor-pointer
-                    ${isSending ? 'bg-stone-300 text-stone-500' : 'bg-stone-900 text-white hover:bg-stone-800'}`}
+                  className={`w-full py-5 text-[10px] uppercase tracking-[0.4em] font-bold transition-all duration-500
+                    ${isSending 
+                      ? 'bg-stone-100 text-stone-300 cursor-wait' 
+                      : 'bg-black text-white hover:bg-stone-800 active:scale-[0.99] cursor-pointer'}`}
                 >
-                  {isSending ? 'Procesando...' : 'Finalizar Pedido'}
+                  {isSending ? 'Enviando...' : 'Confirmar Selección'}
                 </button>
-                
-                <p className="mt-6 text-[9px] text-center text-stone-400 leading-relaxed uppercase tracking-wider font-serif italic">
-                  El pedido será procesado por nuestro equipo <br /> de administración.
+              ) : (
+                <button 
+                  onClick={() => navigate('/mis-presupuestos')} 
+                  className="w-full py-5 text-[10px] uppercase tracking-[0.4em] font-bold border border-black hover:bg-black hover:text-white transition-all duration-300 cursor-pointer"
+                >
+                  Regresar al listado
+                </button>
+              )}
+              
+              <div className="mt-8 pt-8 border-t border-stone-100">
+                <p className="text-[9px] text-stone-400 uppercase tracking-widest leading-loose">
+                  Este documento es una solicitud de presupuesto. Los precios y el stock están sujetos a confirmación por parte del equipo comercial.
                 </p>
-              </>
-            ) : (
-              <button
-                onClick={() => navigate('/mis-presupuestos')}
-                className="w-full py-5 text-[11px] uppercase tracking-[0.3em] font-bold border border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white transition-all duration-500 cursor-pointer"
-              >
-                Volver al historial
-              </button>
-            )}
+              </div>
+            </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default Presupuesto;

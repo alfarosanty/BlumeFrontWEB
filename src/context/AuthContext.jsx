@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
       {loading ? (
         /* Pantalla de carga estética mientras verificamos sesión */
         <div className="h-screen w-full bg-[#faf9f6] flex flex-col justify-center items-center space-y-4">
-          <div className="w-8 h-8 border-4 border-stone-200 border-t-orange-500 rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-stone-200 border-t-[#be9e70] rounded-full animate-spin"></div>
           <p className="text-stone-400 text-[10px] uppercase tracking-[0.2em] font-bold">
             Explorando Blume...
           </p>
