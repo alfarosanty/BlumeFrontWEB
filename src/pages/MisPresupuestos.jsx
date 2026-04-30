@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { presupuestoService } from '../services/presupuestoService';
 import { Plus, ArrowRight, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PantallaCarga from '../components/PantallaCarga';
 
 const MisPresupuestos = () => {
   const [presupuestos, setPresupuestos] = useState([]);
@@ -23,14 +24,7 @@ const MisPresupuestos = () => {
     loadData();
   }, []);
 
-  if (loading) return (
-    <div className="h-screen w-full bg-[#faf9f6] flex flex-col justify-center items-center space-y-4">
-          <div className="w-8 h-8 border-4 border-stone-200 border-t-[#be9e70] rounded-full animate-spin"></div>
-          <p className="text-stone-400 text-[10px] uppercase tracking-[0.2em] font-bold">
-            Explorando Blume...
-          </p>
-        </div>
-  );
+  if (loading) return <PantallaCarga />
 
   return (
     <div className="bg-[#faf9f6] min-h-screen pt-24 md:pt-32 pb-12">

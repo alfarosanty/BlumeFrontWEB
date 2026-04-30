@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ArticuloService } from "../services/articuloService";
-import DetalleArticulo from "../components/DetalleArticulo"; // Importás el componente visual
+import DetalleArticulo from "../components/DetalleArticulo";
+import PantallaCarga from "../components/PantallaCarga";
 
 const DetalleArticuloPage = () => {
     const { id } = useParams(); // Este es el ID que viene de la URL
@@ -20,7 +21,7 @@ const DetalleArticuloPage = () => {
         return () => controller.abort(); // Al desmontar, cancela
     }, [id]);
 
-    if (variantes.length === 0) return <p className="p-10 text-center">Cargando...</p>;
+    if (variantes.length === 0) return <PantallaCarga />;
 
     return <DetalleArticulo variantes={variantes} />; 
 };

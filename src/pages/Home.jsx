@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import ArticuloCard from "../components/ArticuloCard";
 import { ArticuloService } from "../services/ArticuloService";
+import PantallaCarga from "../components/PantallaCarga";
 
 const Home = () => {
 
@@ -50,11 +51,8 @@ const Home = () => {
 
 
     if (cargando) {
-    return <div className="flex flex-col justify-center items-center h-64 space-y-4">
-           <div className="w-8 h-8 border-4 border-stone-200 border-t-[#be9e70] rounded-full animate-spin"></div>
-           <p className="text-stone-400 text-[10px] uppercase tracking-widest font-bold">Explorando Blume...</p>
-        </div>;
-  }
+        return <PantallaCarga />;
+    }
 
   {articulosPrecios.length === 0 && !cargando && (
     <div className="text-center text-stone-600">No se encontraron artículos en esta categoría.</div>

@@ -2,23 +2,30 @@ const API_URL = "http://localhost:8000/articulos";
 
 export const ArticuloService = {
     
-    getArticulosPrecios: async (pagina = 1, size = 20, codigo = "") => {
-        try {
-            const url = new URL(`${API_URL}/precios`);
-            url.searchParams.append("pagina", pagina);
-            url.searchParams.append("size", size);
-            if (codigo) url.searchParams.append("codigo", codigo);
+    getArticulosPrecios: async (pagina = 1, size = 20, filtros = {}) => {
+    try {
+        const url = new URL(`${API_URL}/precios`);
+        
+        url.searchParams.append("pagina", pagina);
+        url.searchParams.append("size", size);
 
-            const response = await fetch(url.toString());
-            if (!response.ok) throw new Error("Error al conectar con el servidor");
-            
-            const pagedResponse = await response.json();
-            return pagedResponse.items || [];
-        } catch (error) {
-            console.error("Error en getArticulosPrecios:", error);
-            return [];
-        }
-    },
+        if (filtros.codigo) url.searchParams.append("codigo", filtros.codigo);
+        if (filtros.sector_id) url.searchParams.append("sector_id", filtros.sector_id);
+        if (filtros.familia_id) url.searchParams.append("familia_id", filtros.familia_id);
+        if (filtros.subfamilia_id) url.searchParams.append("subfamilia_id", filtros.subfamilia_id);
+
+        const response = await fetch(url.toString());
+        if (!response.ok) throw new Error("Error al conectar con el servidor");
+        
+        const pagedResponse = await response.json();
+        
+        return pagedResponse.items || [];
+        
+    } catch (error) {
+        console.error("Error en getArticulosPrecios:", error);
+        return [];
+    }
+},
 
     getDetalleArticulo: async (pagina = 1, size = 20, articulo_precio_id = 0, signal) => {
         try {

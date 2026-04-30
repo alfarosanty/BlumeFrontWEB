@@ -2,32 +2,60 @@ import React, { useState, useEffect } from 'react';
 import UserMenu from './UserMenu';
 import Buscador from './Buscador';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X } from 'lucide-react'; 
+import { ShoppingCart, User, Menu, X, ChevronDown } from 'lucide-react'; 
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { SectorService } from '../services/SectorService';
+import { FamiliaService } from '../services/FamiliaService';
+
 
 const Navbar = () => {
   const { user, isAuthenticated } = useAuth();
   const { totalItems, openCart } = useCart();
   const [animate, setAnimate] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú mobile
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [familiasPorSector, setFamiliasPorSector] = useState({});
+  const [openCatId, setOpenCatId] = useState(null);
+  const [loadingFamilias, setLoadingFamilias] = useState(false);
+  const [categorias, setCategorias] = useState([]);
 
-  const categorias = ['Dormitorio', 'Living', 'Mesa', 'Baño'];
 
+  // Lógica de inicialización unificada
   useEffect(() => {
-    if (totalItems === 0) return;
-    setAnimate(true);
-    const timer = setTimeout(() => setAnimate(false), 300);
-    return () => clearTimeout(timer);
-  }, [totalItems]);
+    const fetchSectores = async () => {
+      const data = await SectorService.getVisiblesWeb();
+      setCategorias(data);
+    };
+    fetchSectores();
 
-  // Bloquear scroll cuando el menú está abierto
-  useEffect(() => {
-    if (isMenuOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-  }, [isMenuOpen]);
+    if (totalItems > 0) {
+      setAnimate(true);
+      const timer = setTimeout(() => setAnimate(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [totalItems, categorias.length]);
 
+  const handleToggleSector = async (sectorId) => {
+    if (openCatId === sectorId) {
+      setOpenCatId(null);
+      return;
+    }
+
+    if (!familiasPorSector[sectorId]) {
+      setLoadingFamilias(true);
+      try {
+        const data = await FamiliaService.getPorSector(sectorId);
+        setFamiliasPorSector(prev => ({ ...prev, [sectorId]: data }));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoadingFamilias(false);
+      }
+    }
+    setOpenCatId(sectorId);
+  };
+  
   return (
     <>
       <nav className="bg-white border-b border-stone-100 sticky top-0 z-50">
@@ -55,11 +83,11 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-10">
               {categorias.map((cat) => (
                 <Link 
-                  key={cat}
-                  to={`/categoria/${cat.toLowerCase()}`} 
+                  key={cat.id}
+                  to={`/categoria/${cat.descripcion.toLowerCase()}`} 
                   className="text-stone-500 hover:text-black text-[10px] font-bold tracking-[0.25em] uppercase transition-colors relative group"
                 >
-                  {cat}
+                  {cat.descripcion}
                   <span className="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               ))}
@@ -98,43 +126,56 @@ const Navbar = () => {
         onClick={() => setIsMenuOpen(false)}
       />
       
-      <aside className={`fixed top-0 left-0 z-70 h-full w-[80%] max-w-[320px] bg-white shadow-2xl transition-transform duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 z-70 h-full w-[85%] max-w-85 bg-white transition-transform duration-500 ease-[cubic-bezier(0.32,0,0.07,1)] transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 flex flex-col h-full">
-          <button 
-            onClick={() => setIsMenuOpen(false)}
-            className="self-end p-2 text-stone-400 hover:text-black transition-colors"
-          >
-            <X size={24} strokeWidth={1} />
-          </button>
+          <button onClick={() => setIsMenuOpen(false)} className="self-end p-2 text-stone-400"><X size={24} strokeWidth={1} /></button>
 
-          <div className="mt-12 space-y-8">
-            <p className="text-[10px] uppercase tracking-[0.4em] text-stone-400 font-bold mb-10 border-b border-stone-100 pb-4">Categorías</p>
+          <div className="mt-10 space-y-2">
+            <p className="text-[10px] uppercase tracking-[0.4em] text-stone-400 font-bold mb-8 border-b border-stone-50 pb-4">Colecciones</p>
+            
             {categorias.map((cat) => (
-              <Link 
-                key={cat}
-                to={`/categoria/${cat.toLowerCase()}`}
-                onClick={() => setIsMenuOpen(false)}
-                className="block text-2xl font-serif text-stone-900 hover:italic transition-all"
-              >
-                {cat}
-              </Link>
+              <div key={cat.id} className="py-2">
+                <div className="flex items-center justify-between">
+                  <Link 
+                    to={`/categoria/${cat.descripcion.toLowerCase()}`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-2xl font-serif text-stone-900 tracking-tight"
+                  >
+                    {cat.descripcion}
+                  </Link>
+                  <button 
+                    onClick={() => handleToggleSector(cat.id)}
+                    className="p-2 text-stone-300 hover:text-black transition-colors"
+                  >
+                    <ChevronDown size={20} className={`transition-transform duration-300 ${openCatId === cat.id ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Subcategorías con animación */}
+                <div className={`overflow-hidden transition-all duration-500 ${openCatId === cat.id ? 'max-h-125 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                  <div className="grid grid-cols-1 gap-y-4 pl-2 border-l border-stone-100">
+                    {familiasPorSector[cat.id]?.map((fam) => (
+                      <Link
+                        key={fam.id}
+                        to={`/categoria/${cat.descripcion.toLowerCase()}?familia=${fam.id}`}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="text-[11px] uppercase tracking-[0.2em] text-stone-500 hover:text-black font-medium"
+                      >
+                        {fam.descripcion}
+                      </Link>
+                    ))}
+                    {loadingFamilias && <div className="h-4 w-20 bg-stone-50 animate-pulse"></div>}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
-          <div className="mt-auto pb-8 border-t border-stone-100 pt-8">
-            <Link 
-              to={isAuthenticated ? "/mi-cuenta" : "/login"}
-              onClick={() => setIsMenuOpen(false)}
-              className="flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] font-bold text-stone-900"
-            >
-              <User size={16} strokeWidth={1.5}/>
-              {/* Si está autenticado y existe user.nombre, mostramos "HOLA, [NOMBRE]", sino "INICIAR SESIÓN" */}
-              {isAuthenticated ? (
-                <span>Hola, {user?.username || 'Mi Perfil'}</span>
-              ) : (
-                'Iniciar Sesión'
-              )}
-            </Link>
+          <div className="mt-auto pt-8 border-t border-stone-100">
+             <Link to="/login" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 text-[10px] uppercase tracking-widest font-bold text-stone-900">
+                <User size={16} strokeWidth={1.5}/>
+                {isAuthenticated ? `HOLA, ${user?.username}` : 'INICIAR SESIÓN'}
+             </Link>
           </div>
         </div>
       </aside>
