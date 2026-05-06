@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+const Footer = ({ config }) => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -9,7 +9,7 @@ const Footer = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
           
-          {/* Columna 1: Branding (Ocupa más espacio en desktop) */}
+          {/* Columna 1: Branding */}
           <div className="md:col-span-4 space-y-6">
             <h2 className="text-white text-3xl font-serif tracking-[0.15em] mb-4">BLUME</h2>
             <p className="text-[11px] md:text-xs uppercase tracking-[0.2em] leading-relaxed text-stone-500 max-w-xs">
@@ -36,22 +36,35 @@ const Footer = () => {
             <h3 className="text-white font-bold mb-8 uppercase text-[10px] tracking-[0.3em]">Asistencia</h3>
             <ul className="space-y-4 text-[11px] uppercase tracking-widest">
               <li><a href="#" className="hover:text-white transition-colors duration-300">F.A.Q.</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-300">Contacto</a></li>
+              <li><Link to="/contacto" className="hover:text-white transition-colors duration-300">Contacto</Link></li>
               <li><a href="#" className="hover:text-white transition-colors duration-300">Envíos</a></li>
             </ul>
           </div>
 
-          {/* Columna 4: Contacto */}
+          {/* Columna 4: Contacto DINÁMICO */}
           <div className="md:col-span-3">
             <h3 className="text-white font-bold mb-8 uppercase text-[10px] tracking-[0.3em]">Contacto</h3>
             <div className="space-y-4 text-[11px] uppercase tracking-[0.15em]">
-              <p className="text-stone-500">WhatsApp <span className="text-stone-300 ml-2">+54 11 XXXX . XXXX</span></p>
-              <p className="text-stone-500">Showroom <span className="text-stone-300 ml-2">Bs. As. Argentina</span></p>
+              <p className="text-stone-500">
+                WhatsApp 
+                <span className="text-stone-300 ml-2">
+                  {config?.whatsapp_contacto || "+54 11 XXXX . XXXX"}
+                </span>
+              </p>
+              <p className="text-stone-500">
+                Email 
+                <span className="text-stone-300 ml-2 lowercase italic">
+                  {config?.email_contacto || "hola@blumetextil.com"}
+                </span>
+              </p>
+              <p className="text-stone-500">
+                Showroom <span className="text-stone-300 ml-2">Bs. As. Argentina</span>
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Línea final - Estilo MAF System */}
+        {/* Línea final - Identidad de Desarrollador */}
         <div className="border-t border-stone-800/50 mt-20 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex gap-8 text-[9px] uppercase tracking-[0.4em] font-medium">
             <span className="text-stone-600">© {currentYear} Blume Textil</span>

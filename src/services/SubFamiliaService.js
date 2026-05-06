@@ -1,14 +1,22 @@
-const API_URL = "http://localhost:8000/subfamilias";
+import { apiClient } from './apiClient';
+
+const ENDPOINT = "/subfamilias";
 
 export const SubFamiliaService = {
     getVisiblesWeb: async () => {
         try {
-            const response = await fetch(`${API_URL}/web`);
-            if (!response.ok) throw new Error("Error al obtener subfamilias");
-            
-            return await response.json();
+            return await apiClient(`${ENDPOINT}/web`);
         } catch (error) {
-            console.error("Error en SubFamiliaService.getVisiblesWeb:", error);
+            console.error("Error en SubFamiliaService.getVisiblesWeb:", error.message);
+            return [];
+        }
+    },
+    
+    getPorSector: async (sectorId) => {
+        try {
+            return await apiClient(`${ENDPOINT}/sector/${sectorId}`);
+        } catch (error) {
+            console.error("Error en SubFamiliaService.getPorSector:", error.message);
             return [];
         }
     }

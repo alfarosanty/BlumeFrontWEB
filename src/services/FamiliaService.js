@@ -1,14 +1,13 @@
-const API_URL = "http://localhost:8000/familias";
+import { apiClient } from './apiClient';
+
+const ENDPOINT = "/familias";
 
 export const FamiliaService = {
     getPorSector: async (sectorId) => {
         try {
-            // Asumiendo que tu backend acepta este filtro: /familias/sector/5
-            const response = await fetch(`${API_URL}/sector/${sectorId}`);
-            if (!response.ok) throw new Error("Error al obtener familias");
-            return await response.json();
+            return await apiClient(`${ENDPOINT}/sector/${sectorId}`);
         } catch (error) {
-            console.error(error);
+            console.error("Error en FamiliaService.getPorSector:", error.message);
             return [];
         }
     }

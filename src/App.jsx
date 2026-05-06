@@ -1,31 +1,43 @@
-import { CartProvider } from './context/CartContext';
+import { useState, useEffect } from "react";
 import { BrowserRouter } from 'react-router-dom';
-import { AppRoutes } from './routes/AppRoutes';
-import {Navbar, Footer, CartDrawer} from './components';
 import { AuthProvider } from './context/AuthContext';
+import { AppRoutes } from './routes/AppRoutes';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import CartDrawer from './components/CartDrawer';
+import { HomeService } from './services/HomeService';
+import { CartProvider } from "./context/CartContext";
 
 function App() {
+  const [config, setConfig] = useState(null);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const data = await HomeService.getHomeConfig();
+      setConfig(data);
+    };
+    fetchConfig();
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          {/* Este div controla que el Footer siempre sea el final */}
           <div className="flex flex-col min-h-screen text-stone-800 bg-white">
             
             <Navbar />
             <CartDrawer />
-            {/* El main flex-grow empuja al Footer al fondo del todo */}
+
             <main className="grow">
-              <AppRoutes />
+              <AppRoutes config={config} />
             </main>
 
-            <Footer />
+            <Footer config={config} />
             
           </div>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
-
   );
 }
 

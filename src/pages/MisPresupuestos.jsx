@@ -139,7 +139,6 @@ const MisPresupuestos = () => {
 
       {/* Footer Branding MAF */}
       <footer className="mt-32 py-10 border-t border-stone-100 mx-12 flex flex-col md:flex-row justify-between items-center gap-4">
-        <span className="text-[8px] uppercase tracking-[0.6em] text-stone-400 font-bold">Francisco Mosquera Alfaro</span>
         <div className="flex gap-8">
            <span className="text-[8px] uppercase tracking-[0.3em] text-stone-300">MAF System v1.0</span>
            <span className="text-[8px] uppercase tracking-[0.3em] text-stone-300">©{new Date().getFullYear()}</span>
