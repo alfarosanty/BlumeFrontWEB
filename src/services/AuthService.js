@@ -3,7 +3,6 @@ const API_URL = "http://localhost:8000/auth";
 export const authService = {
   login: async (email, password) => {
     try {
-        console.log("Ejecutando la funcion")
       const params = new URLSearchParams();
       params.append('username', email); 
       params.append('password', password);
@@ -31,7 +30,6 @@ export const authService = {
         }
       }
 
-      console.log("DATA: ", data)
       return data;
     } catch (error) {
       throw error;

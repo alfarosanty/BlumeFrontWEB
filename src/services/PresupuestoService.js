@@ -24,7 +24,6 @@ export const presupuestoService = {
   getById: async (id) => {
     try {
       const data = await apiClient(`${ENDPOINT}/${id}`);
-      console.log("Detalle del presupuesto:", data);
       return data;
     } catch (error) {
       console.error(`Error al obtener presupuesto ${id}:`, error.message);

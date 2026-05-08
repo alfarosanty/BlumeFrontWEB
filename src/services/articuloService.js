@@ -29,17 +29,15 @@ export const ArticuloService = {
     console.group("🔎 ArticuloService: getSugerencias");
     try {
       if (!q || q.length < 2) {
-        console.log("Consulta demasiado corta, se omite la petición.");
         console.groupEnd();
         return [];
       }
 
       const params = new URLSearchParams({ q });
-      console.log(`Buscando: "${q}"...`);
+
 
       const sugerencias = await apiClient(`/articulos/sugerencias?${params}`);
       
-      console.log("Resultados obtenidos:", sugerencias.length);
       console.groupEnd();
       
       return sugerencias;

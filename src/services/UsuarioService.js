@@ -3,7 +3,6 @@ const API_URL = "http://localhost:8000/usuarios";
 export const usuarioService = {
   registrar: async (datosRegistro) => {
     try {
-      console.log("🚀 Enviando a registrar:", datosRegistro);
       const response = await fetch(`${API_URL}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,7 +37,6 @@ export const usuarioService = {
 
   login: async (email, password) => {
     try {
-      console.log("🔑 Intentando login para:", email);
       const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {

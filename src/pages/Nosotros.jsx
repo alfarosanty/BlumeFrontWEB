@@ -25,9 +25,9 @@ const Nosotros = () => {
 
           <div className="space-y-8 text-[13px] md:text-[14px] leading-loose tracking-wide text-stone-500 font-light">
             <p>
-              Somos una empresa familiar con años de trayectoria en el sector. Cada uno de nuestros productos, 
-              desde los almohadones hasta las telas por metro, pasa por un riguroso proceso de selección 
-              y confección en nuestra propia fábrica.
+              Somos una empresa familiar con años de trayectoria en el sector. Nos dedicamos al desarrollo de textiles orientados a las distintas áreas del hogar. 
+              Nuestros productos son pensados y elaborados de manera artesanal, poniendo especial atención en la confección y elección de nuestras materias primas 
+              logrando objetos únicos, cálidos y urbanos.
             </p>
             <p>
               Creemos que la calidad no es un lujo, sino un estándar. Por eso, trabajamos día a día para que 

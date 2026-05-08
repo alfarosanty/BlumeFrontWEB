@@ -10,7 +10,6 @@ export const HomeService = {
             }
             
             const data = await response.json();
-            console.log("Data de config0",data)
             return data;
         } catch (error) {
             console.error("Error en HomeService.getHomeConfig:", error);

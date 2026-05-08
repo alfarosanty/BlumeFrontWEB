@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import { HomeService } from './services/HomeService';
 import { CartProvider } from "./context/CartContext";
+import ScrollToTop from "./routes/ScrollToTop";
 
 function App() {
   const [config, setConfig] = useState(null);
@@ -23,6 +24,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
+          <ScrollToTop />
           <div className="flex flex-col min-h-screen text-stone-800 bg-white">
             
             <Navbar />
