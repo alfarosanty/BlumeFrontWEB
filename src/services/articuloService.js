@@ -12,6 +12,17 @@ export const ArticuloService = {
     }
   },
 
+  getArticulosMaestros: async (pagina = 1, size = 20, filtros = {}) => {
+    try {
+      const params = new URLSearchParams({ pagina, size, ...filtros });
+      const pagedResponse = await apiClient(`/articulos/maestros?${params}`);
+      return pagedResponse.items || [];
+    } catch (error) {
+      console.error("Error en getArticulosMaestros:", error);
+      return [];
+    }
+  },
+
   getDetalleArticulo: async (pagina = 1, size = 40, articulo_precio_id = 0) => {
     try {
       const params = new URLSearchParams({ pagina, size });
