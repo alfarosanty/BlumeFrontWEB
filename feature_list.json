@@ -1,0 +1,93 @@
+{
+  "project": "blume-front",
+  "description": "Frontend React para el catálogo y presupuestos de Blume Textil",
+  "rules": {
+    "one_feature_at_a_time": true,
+    "require_tests_to_close": true,
+    "require_approved_spec_to_implement": true,
+    "valid_status": ["pending", "spec_ready", "in_progress", "done", "blocked"],
+    "sdd_required_when": "feature has \"sdd\": true"
+  },
+  "features": [
+    {
+      "id": 1,
+      "name": "fix_navbar_familias",
+      "title": "Corregir menú desplegable de familias en NavBar",
+      "description": "El NavBar referencia las variables de estado familiasPorSector y loadingFamilias que nunca se declararon como useState, causando ReferenceError en runtime al expandir un sector en mobile.",
+      "acceptance": [
+        "Al pulsar un sector en el menú mobile se muestra su lista de familias sin error en consola",
+        "Mientras se cargan las familias se muestra un indicador de carga",
+        "Si un sector ya fue cargado, no se vuelve a llamar a la API",
+        "Existe al menos un test que verifica que handleToggleSector llama a FamiliaService.getPorSector"
+      ],
+      "sdd": true,
+      "status": "done"
+    },
+    {
+      "id": 2,
+      "name": "front_articulos_maestro_migration",
+      "title": "Migración del front de ArticuloPrecio a ArticuloMaestro",
+      "description": "El frontend actualmente consume ArticulosPrecio como unidad base para listings y detalle. Con la incorporación de ArticuloMaestro, los listings (CategoryPage, búsqueda, cards) deben mostrar maestros en lugar de precios. La página de detalle cambia su ruta a ID de ArticuloMaestro y presenta un flujo de selección en dos pasos: primero medida (→ determina ArticuloPrecio), luego color (→ determina Articulo). El carrito no cambia su estructura: sigue recibiendo un Articulo individual con su id_articulo. Se reemplaza el servicio/hook que traía ArticulosPrecio por el nuevo endpoint GET /api/articulos-maestro.",
+      "acceptance": [
+        "Los listings (CategoryPage y similares) consumen GET /api/articulos-maestro con los filtros disponibles (activo, sectorId, familiaId, subfamiliaId, codigo) en lugar del endpoint de ArticulosPrecio",
+        "El ArticuloCard se renderiza a partir de ArticuloMaestro; la ruta al detalle usa el ID del maestro",
+        "La ruta de detalle cambia de /articulo/:idArticuloPrecio a /articulo/:idArticuloMaestro",
+        "En la página de detalle, el usuario primero selecciona una medida; la lista de medidas se construye a partir de los ArticulosPrecios del maestro",
+        "Al seleccionar una medida se determina el ArticuloPrecio correspondiente y se muestran sus Articulos disponibles (colores)",
+        "Al seleccionar un color/Articulo, el botón 'Agregar al carrito' queda habilitado",
+        "addToCart recibe el Articulo seleccionado con su id_articulo, precio_unitario y cantidad; la lógica del carrito no cambia",
+        "Si el maestro tiene un solo ArticuloPrecio, la selección de medida se hace automáticamente (skip del paso)",
+        "Si el ArticuloPrecio tiene un solo Articulo, la selección de color se hace automáticamente (skip del paso)",
+        "La paginación del listing usa pageNumber y pageSize como query params",
+        "Mientras carga el nuevo endpoint, el listing muestra el estado de carga previo (skeleton/spinner existente)",
+        "Los enlaces o bookmarks con rutas viejas (/articulo/:idArticuloPrecio) no rompen la app; redirigen o muestran 404 graceful"
+      ],
+      "sdd": true,
+      "status": "pending"
+    },
+    {
+      "id": 3,
+      "name": "pagina_404",
+      "title": "Página 404 personalizada",
+      "description": "Reemplazar el div con texto plano de la ruta catch-all por un componente Page404 con diseño coherente al sistema visual de Blume.",
+      "acceptance": [
+        "Cualquier ruta no reconocida renderiza el componente Page404",
+        "La página tiene el estilo visual de Blume (fuente serif, paleta stone)",
+        "La página contiene un enlace que navega de vuelta a /",
+        "Existe un test que verifica que la ruta /* renderiza Page404"
+      ],
+      "sdd": true,
+      "status": "pending"
+    },
+    {
+      "id": 4,
+      "name": "notificaciones_toast",
+      "title": "Sistema de notificaciones toast",
+      "description": "Hook useToast y componente ToastContainer para dar feedback visual al usuario en acciones clave: añadir al carrito, enviar presupuesto, errores de red.",
+      "acceptance": [
+        "Al añadir un artículo al carrito se muestra un toast de confirmación",
+        "Al crear un presupuesto exitosamente se muestra un toast de éxito",
+        "Si falla la creación del presupuesto se muestra un toast de error con el mensaje",
+        "Los toasts desaparecen automáticamente tras 3 segundos",
+        "El hook useToast es independiente y testeable sin renderizar la UI completa"
+      ],
+      "sdd": true,
+      "status": "pending"
+    },
+    {
+      "id": 5,
+      "name": "perfil_usuario",
+      "title": "Página de perfil de usuario",
+      "description": "Vista en /perfil donde el usuario autenticado puede ver y editar sus datos (username, email). Protegida por ProtectedRoute.",
+      "acceptance": [
+        "La ruta /perfil existe y solo es accesible para usuarios autenticados",
+        "El usuario ve sus datos actuales (username, email) pre-rellenados en un formulario",
+        "Al guardar, se llama a UsuarioService y se actualiza el contexto de Auth si el username cambia",
+        "Si la llamada al backend falla, se muestra un mensaje de error sin perder los datos del formulario",
+        "Existe un test del componente que verifica que el formulario muestra los datos del usuario"
+      ],
+      "sdd": true,
+      "status": "pending"
+    }
+  ]
+}

@@ -17,6 +17,8 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openCatId, setOpenCatId] = useState(null);
   const [categorias, setCategorias] = useState([]);
+  const [familiasPorSector, setFamiliasPorSector] = useState({});
+  const [loadingFamilias, setLoadingFamilias] = useState(false);
 
 
   // Lógica de inicialización unificada
@@ -40,18 +42,19 @@ const Navbar = () => {
       return;
     }
 
+    setOpenCatId(sectorId);
+
     if (!familiasPorSector[sectorId]) {
       setLoadingFamilias(true);
       try {
         const data = await FamiliaService.getPorSector(sectorId);
         setFamiliasPorSector(prev => ({ ...prev, [sectorId]: data }));
       } catch (error) {
-        console.error(error);
+        // error handled silently; loading state cleared in finally
       } finally {
         setLoadingFamilias(false);
       }
     }
-    setOpenCatId(sectorId);
   };
 
   if (location.pathname === '/espera-confirmacion') return null;
@@ -144,14 +147,48 @@ const Navbar = () => {
                   {categorias.map((cat) => (
                     <div key={cat.id} className="py-2">
                       <div className="flex items-center justify-between">
-                        <Link 
+                        <Link
                           to={`/categoria/${cat.descripcion.toLowerCase()}`}
                           onClick={() => setIsMenuOpen(false)}
                           className="text-2xl font-serif text-stone-900 tracking-tight"
                         >
                           {cat.descripcion}
                         </Link>
+                        <button
+                          onClick={() => handleToggleSector(cat.id)}
+                          className="p-1 text-stone-400 hover:text-stone-700 transition-colors"
+                          aria-label={`Expandir ${cat.descripcion}`}
+                        >
+                          <ChevronDown
+                            size={18}
+                            strokeWidth={1.5}
+                            className={`transition-transform duration-200 ${openCatId === cat.id ? 'rotate-180' : ''}`}
+                          />
+                        </button>
                       </div>
+                      {openCatId === cat.id && (
+                        <div className="mt-2 ml-2">
+                          {loadingFamilias ? (
+                            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-stone-300 border-t-stone-700" aria-label="Cargando familias" />
+                          ) : (
+                            familiasPorSector[cat.id] && familiasPorSector[cat.id].length > 0 && (
+                              <ul className="space-y-1">
+                                {familiasPorSector[cat.id].map((familia) => (
+                                  <li key={familia.id}>
+                                    <Link
+                                      to={`/categoria/${cat.descripcion.toLowerCase()}/${familia.descripcion.toLowerCase()}`}
+                                      onClick={() => setIsMenuOpen(false)}
+                                      className="text-sm text-stone-600 hover:text-stone-900 tracking-wide transition-colors"
+                                    >
+                                      {familia.descripcion}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </>

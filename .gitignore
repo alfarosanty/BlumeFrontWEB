@@ -1,3 +1,10 @@
+# React / Vite / Harness
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.local
+
 # Logs
 logs
 *.log

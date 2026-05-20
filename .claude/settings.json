@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1",
+            "description": "Tras editar/escribir, corre la verificación completa."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1",
+            "description": "Antes de cerrar la sesión, fuerza la verificación."
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File init.ps1)",
+      "PowerShell(.\\init.ps1)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "PowerShell(npm *)",
+      "PowerShell(npx *)"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(node -e \"const v=JSON.parse\\(require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\)\\); const stable=v.filter\\(x=>!x.includes\\('-'\\)\\); console.log\\('Latest stable:', stable[stable.length-1]\\); console.log\\('All >=1.x:', stable.filter\\(x=>parseInt\\(x\\)>=1\\).slice\\(0,10\\).join\\(', '\\)\\)\")",
+      "Bash(powershell -File \".\\\\init.ps1\")",
+      "Bash(powershell -File .\\\\init.ps1)",
+      "Bash(powershell *)",
+      "Bash(New-Item -Path \"C:\\\\Fran\\\\BlumeWEB\\\\Frontend\\\\blume-front\\\\progress\\\\review_fix_navbar_familias.md\" -ItemType File -Force)",
+      "Bash(Out-Null)",
+      "Bash(Write-Host \"created\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Fran\\\\BlumeWEB\\\\Frontend\\\\blume-front\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)"
+    ]
+  }
+}
